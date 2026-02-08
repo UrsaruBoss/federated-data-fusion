@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./backend
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - API_CORS_ORIGINS=http://localhost:5173,http://localhost:3000,https://<username>.github.io
+      - GENERATORS_ENABLED=true
+      - EVENT_RATE_SEC=6
+      - ASSET_RATE_SEC=2
+      - ALERT_RATE_SEC=3
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
