@@ -14,7 +14,7 @@ The system combines a **Python/FastAPI backend** with a **React/Redux frontend**
 
 ## Live Demo / Media
 
-[**LIVE DEMO** (COMING SOON]
+[**LIVE DEMO**](https://dashboard.rusin.ro)
 
 > Screenshots and short recordings are provided below to illustrate the operational views and workflows.
 
