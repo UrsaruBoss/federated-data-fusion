@@ -16,6 +16,21 @@ The system combines a **Python/FastAPI backend** with a **React/Redux frontend**
 
 [**LIVE DEMO**](https://dashboard.rusin.ro)
 
+> Screenshots and short recordings are provided below to illustrate the operational views and workflows.
+
+---
+
+## Screenshots
+
+### Ops View
+![Ops View](screenshots/ops.png)
+
+### Wall View
+![Wall View](screenshots/wall.png)
+
+### Health View
+![Health View](screenshots/health.png)
+
 ---
 
 ## Repository Structure
@@ -60,32 +75,66 @@ root/
 * Server-Sent Events (SSE)
 * Docker
 
-### Core Domain Objects
+---
+## Data Generation & Simulation
 
-#### Event
+The backend includes a **built-in data generation and simulation layer** designed to emulate realistic operational telemetry without relying on external data sources.
 
-Represents a detected or inferred situation in space and time.
+### Purpose
 
-* `severity`: low / medium / high / critical
-* `lat`, `lon`
-* confidence score
-* timestamped
+The simulation layer is used to:
 
-#### Asset
+- provide reproducible and deterministic demo scenarios
+- exercise real-time data flows (REST + SSE)
+- validate frontend state management under continuous updates
+- decouple UI development from live or sensitive data feeds
 
-Represents a monitored entity (sensor, vehicle, platform).
+### Generated Entities
 
-* `status`: active / degraded / offline
-* position & last update time
-* owner/team metadata
+The system continuously generates the following entity types:
 
-#### Alert
+- **Events**
+  - geospatially distributed
+  - variable severity levels (`low`, `medium`, `high`, `critical`)
+  - confidence scores and timestamps
 
-Represents a correlated warning for operators.
+- **Assets**
+  - dynamic status transitions (`active`, `degraded`, `offline`)
+  - periodic position and heartbeat updates
+  - ownership and type metadata
 
-* `priority`: p1 / p2 / p3
-* optional link to an event or asset
-* human-readable message
+- **Alerts**
+  - rule-based correlations derived from events and asset states
+  - prioritized warnings (`p1`, `p2`, `p3`)
+  - optional linkage to related events or assets
+
+### Execution Model
+
+- Data generators run as **background tasks** inside the FastAPI application
+- Generated state is written to **Redis**, acting as the single source of truth
+- Each state mutation propagates through the system:
+  - REST endpoints expose the latest snapshot
+  - SSE streams push incremental updates to connected clients in near real time
+
+### Scenario Control
+
+An administrative control layer allows operators to:
+
+- switch between predefined scenarios (e.g. normal load, stress conditions)
+- dynamically adjust generation rates
+- reset the simulated environment to a clean baseline
+
+This enables controlled demonstrations of system behavior under varying data volumes and update frequencies.
+
+### Design Philosophy
+
+The simulation layer is intentionally:
+
+- simple and transparent
+- easy to extend with new rules or entity types
+- structurally aligned with real-world monitoring and telemetry pipelines
+
+Although the data is synthetic, its structure and behavior closely mirror production-grade event and monitoring systems.
 
 ---
 
@@ -138,7 +187,7 @@ Redis is used for:
 * fast lookup and counters
 * pub/sub fan-out for SSE clients
 
-The backend uses a single centralized Redis client to allow easy replacement with Redis Sentinel or Cluster if needed.
+The backend uses a single centralized Redis client, designed to be easily replaceable with Redis Sentinel or Cluster if required.
 
 ---
 
@@ -233,31 +282,16 @@ http://localhost:5173
 
 ---
 
-## Environment Configuration
-
-Backend configuration is managed via environment variables and `config.py`:
-
-* `REDIS_URL`
-* `ADMIN_COOLDOWN_SEC`
-* `EVENT_RATE_SEC`
-* `ASSET_RATE_SEC`
-* `ALERT_RATE_SEC`
-* `API_CORS_ORIGINS`
-
-All values have sensible defaults for local development.
-
----
-
 ## Testing
 
-Frontend includes unit tests for:
+The frontend includes automated unit and integration tests covering:
 
 * OpsView
 * WallView
 * HealthView
 * Layout and navigation logic
 
-Tests use Jest and React Testing Library with mocked SSE and DataGrid components.
+Tests are implemented using **Jest** and **React Testing Library**, with mocked SSE streams and DataGrid components to ensure deterministic results.
 
 ---
 
@@ -270,7 +304,7 @@ This project is intended to demonstrate:
 * resilient frontend state management
 * operational UI design for monitoring environments
 
-It is **not** a production system, but an extensible and realistic foundation for experimentation and demos.
+It is **not** a production system, but an extensible and realistic foundation for experimentation, demos, and portfolio presentation.
 
 ---
 
